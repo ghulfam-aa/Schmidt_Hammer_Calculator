@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schmidt Hammer Calculator Pro+</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Reset & Base Styles --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary-color: #4A90E2; --primary-hover: #357ABD; --primary-light: #e9f2fc;
+            --secondary-color: #555; --secondary-light: #f1f3f5;
+            --light-gray: #f8f9fa; --medium-gray: #eef2f7; --border-color: #dfe6f0; --grid-border-color: #d1d9e6;
+            --dark-gray: #343a40; --white: #ffffff; --danger-color: #e63946; --danger-light: #fdeaea;
+            --success-color: #52b788; --success-light: #edf8f1;
+            --warning-color: #fca311; --warning-light: #fff8e7;
+            --text-color: #333; --label-color: #666; --text-muted: #888;
+            --font-family: 'Inter', sans-serif;
+            --spacing-xs: 4px; --spacing-sm: 8px; --spacing-md: 16px; --spacing-lg: 24px; --spacing-xl: 32px;
+            --border-radius: 8px; /* Slightly larger radius */
+            --box-shadow-light: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --box-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition-speed: 0.2s;
+        }
+        body { font-family: var(--font-family); background-color: var(--light-gray); color: var(--text-color); line-height: 1.6; padding: var(--spacing-lg); }
+        .container { max-width: 1500px; margin: var(--spacing-md) auto; background-color: var(--white); padding: var(--spacing-xl); border-radius: var(--border-radius); box-shadow: var(--box-shadow-medium); border: 1px solid var(--border-color); }
+        h1, h2 { text-align: center; color: var(--dark-gray); margin-bottom: var(--spacing-xl); font-weight: 700; /* Bolder */ }
+        h1 { font-size: 2.5em; color: var(--primary-color); margin-bottom: var(--spacing-lg); }
+        h2.section-title { /* Specific class for section titles */ font-size: 1.6em; border-bottom: 2px solid var(--primary-color); display: inline-block; padding-bottom: var(--spacing-sm); margin-top: var(--spacing-xl); margin-bottom: var(--spacing-lg); text-align: center; width: 100%; font-weight: 600; }
+        #results-heading { display: flex; justify-content: space-between; align-items: center; border-bottom: none; margin-bottom: var(--spacing-md); padding-bottom: 0; flex-wrap: wrap; gap: var(--spacing-md); }
+        #results-heading h2 { margin: 0; border-bottom: none; padding-bottom: 0; text-align: left; width: auto; font-size: 1.8em; font-weight: 600; }
+
+        /* --- Form Styling --- */
+        #inputForm { margin-bottom: var(--spacing-xl); padding: var(--spacing-lg) var(--spacing-xl); background-color: var(--white); border: 1px solid var(--border-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow-light); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-lg) var(--spacing-xl); /* Row and column gap */ margin-bottom: var(--spacing-xl); }
+        .form-group { display: flex; flex-direction: column; position: relative; /* For error message positioning */ }
+        label { font-weight: 500; margin-bottom: var(--spacing-sm); color: var(--label-color); font-size: 0.9em; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1em; background-color: var(--light-gray); transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease, background-color var(--transition-speed) ease; }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); background-color: var(--white); }
+        ::placeholder { color: #bbb; font-style: italic; opacity: 1; }
+        /* Inline Error Message Styling */
+        .error-message { color: var(--danger-color); font-size: 0.85em; margin-top: var(--spacing-xs); display: none; /* Hidden by default */ position: absolute; /* Position below input */ top: 100%; left: 0; }
+        .input-error + .error-message { display: block; } /* Show error message */
+        .form-group { padding-bottom: 20px; } /* Add space below group for error message */
+
+
+        /* --- Button Styling --- */
+        .button-container { display: flex; flex-wrap: wrap; gap: var(--spacing-md); justify-content: center; margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px dashed var(--border-color); }
+        button { padding: 12px 25px; border: none; border-radius: var(--border-radius); cursor: pointer; font-size: 1.05em; font-weight: 600; /* Bolder buttons */ transition: all var(--transition-speed) ease; display: inline-flex; align-items: center; gap: var(--spacing-sm); text-decoration: none; white-space: nowrap; line-height: 1.2; }
+        button svg { width: 1.2em; height: 1.2em; flex-shrink: 0; transition: transform var(--transition-speed) ease; }
+        button:hover svg { transform: scale(1.1); }
+        button#calculateBtn { background-color: var(--primary-color); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button#calculateBtn:hover { background-color: var(--primary-hover); box-shadow: 0 4px 8px rgba(0,0,0,0.15); transform: translateY(-2px); }
+        button#calculateBtn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        button#changeComponentBtn { background-color: var(--warning-color); color: var(--dark-gray); /* Better contrast */ box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button#changeComponentBtn:hover { background-color: #e8920b; box-shadow: 0 4px 8px rgba(0,0,0,0.15); transform: translateY(-2px); color: var(--white); }
+        button#changeComponentBtn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        button#exportCsvBtn { background-color: var(--success-color); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button#exportCsvBtn:hover { background-color: #40916c; box-shadow: 0 4px 8px rgba(0,0,0,0.15); transform: translateY(-2px); }
+        button#exportCsvBtn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        button:disabled { background-color: #ccc !important; cursor: not-allowed !important; box-shadow: none !important; transform: none !important; color: #888 !important; }
+        button:disabled svg { fill: #888 !important; }
+
+        /* --- Table Styling --- */
+        .table-container { overflow-x: auto; margin-top: var(--spacing-md); border: 1px solid var(--grid-border-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow-light); display: none; /* Hidden initially if empty */ }
+        #resultsTable { width: 100%; border-collapse: collapse; background-color: var(--white); border-radius: var(--border-radius); overflow: hidden; }
+        #resultsTable caption { caption-side: bottom; text-align: center; padding: var(--spacing-md); font-size: 0.85em; color: var(--text-muted); font-style: italic; }
+        #resultsTable th, #resultsTable td { border: 1px solid var(--grid-border-color); padding: 10px 12px; /* Slightly reduced padding */ text-align: center; white-space: nowrap; vertical-align: middle; transition: background-color var(--transition-speed) ease; }
+        #resultsTable { border-style: hidden; }
+        #resultsTable thead th { background-color: var(--primary-color); color: var(--white); font-weight: 600; position: sticky; top: 0; z-index: 2; border: 1px solid #357ABD; font-size: 0.9em; }
+        #resultsTable thead tr:last-child th { background-color: var(--secondary-light); color: var(--secondary-color); font-weight: 500; position: sticky; /* top set by JS */ z-index: 1; border: 1px solid var(--grid-border-color); font-size: 0.85em; }
+        #resultsTable tbody tr:nth-child(even):not(.component-row) { background-color: var(--light-gray); }
+        #resultsTable tbody tr:not(.component-row):hover { background-color: var(--primary-light); /* Lighter blue hover */ }
+        /* Component Row Styling */
+        .component-row td { background-color: var(--secondary-light); color: var(--primary-hover); font-weight: 700; /* Bolder */ text-align: center !important; border: 1px solid var(--grid-border-color); border-bottom: 2px solid var(--primary-color); /* Accent border */ font-size: 1.15em; padding: 12px 16px; /* More padding */ }
+        /* Highlight Key Result Columns */
+        #resultsTable td:nth-child(14), #resultsTable td:nth-child(15) { background-color: #f1f3f5; /* Subtle background */ font-weight: 600; }
+        /* De-emphasize Generated Hardness Values */
+        .hardness-value-cell { font-size: 0.85em !important; color: var(--text-muted) !important; background-color: var(--white) !important; /* Override even row striping */ }
+        #resultsTable tbody tr:nth-child(even) .hardness-value-cell { background-color: var(--light-gray) !important; } /* Keep striping consistent */
+
+        /* Specific column styling */
+        #resultsTable td:nth-child(1) { font-weight: 600; color: var(--primary-color); min-width: 50px; font-size: 0.9em; }
+        #resultsTable td:nth-child(2) { /* Member Location */ white-space: normal; min-width: 180px; font-weight: 500; font-size: 0.95em; text-align: center; /* Centered */ }
+        #resultsTable td:nth-child(3), #resultsTable td:nth-child(13) { font-weight: 500; color: var(--secondary-color); min-width: 70px; font-size: 0.9em; }
+        #resultsTable td:nth-child(14) { color: var(--primary-hover); min-width: 80px; font-size: 0.95em; }
+        #resultsTable td:nth-child(15) { color: var(--success-color); min-width: 90px; font-size: 0.95em; }
+
+        /* --- Empty State --- */
+         #emptyTableMsg { text-align: center; padding: var(--spacing-xl) var(--spacing-md); color: var(--text-muted); font-size: 1.1em; border: 2px dashed var(--border-color); border-radius: var(--border-radius); margin-top: var(--spacing-md); display: block; /* Show initially */ }
+         #emptyTableMsg svg { width: 40px; height: 40px; margin-bottom: var(--spacing-md); fill: var(--text-muted); }
+
+         /* --- Row Highlight Animation --- */
+         @keyframes highlight-fade {
+           from { background-color: var(--success-light); }
+           to { background-color: transparent; }
+         }
+         .new-row-highlight {
+           animation: highlight-fade 1.5s ease-out forwards;
+         }
+         /* Ensure hover style overrides animation after it finishes */
+         #resultsTable tbody tr:not(.component-row).new-row-highlight:hover {
+             background-color: var(--primary-light); /* Reapply hover style */
+             animation: none; /* Stop animation if hover occurs */
+         }
+
+
+        .input-error { border-color: var(--danger-color) !important; background-color: var(--danger-light) !important; }
+        @media (max-width: 992px) { .container { max-width: 95%; padding: var(--spacing-lg); } h1 { font-size: 2em; } h2, #results-heading h2 { font-size: 1.5em; } .form-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } }
+        @media (max-width: 768px) { body { padding: var(--spacing-sm); } .container { max-width: 100%; padding: var(--spacing-md); margin: var(--spacing-sm) auto; box-shadow: none; border: none; } h1 { font-size: 1.8em; } h2, #results-heading h2 { font-size: 1.4em; } .form-grid { grid-template-columns: 1fr; gap: var(--spacing-md); } .button-container { flex-direction: column; gap: var(--spacing-md); } button { width: 100%; justify-content: center; } #results-heading { flex-direction: column; align-items: center; gap: var(--spacing-md); } #results-heading h2 { text-align: center; } #resultsTable th, #resultsTable td { padding: 8px 6px; /* Further reduce padding */ font-size: 0.8em; } #resultsTable { font-size: 0.8em; min-width: 0; } #resultsTable td:nth-child(2) { min-width: 80px; } #resultsTable thead th { font-size: 0.75em; } #resultsTable thead tr:last-child th { font-size: 0.7em; /* Top set by JS */ } .component-row td { font-size: 0.9em; } #emptyTableMsg { font-size: 1em; padding: var(--spacing-lg); } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Schmidt Hammer Calculator</h1>
+
+        <form id="inputForm">
+            <h2 class="section-title">Input Data</h2>
+            <div class="form-grid">
+                 <div class="form-group">
+                     <label for="componentType">Component Type:</label>
+                     <input type="text" id="componentType" required placeholder="e.g., Beam, Column, Slab">
+                     <span class="error-message" id="error-componentType"></span> {/* Error Placeholder */}
+                 </div>
+                 <div class="form-group">
+                     <label for="location">Member Location:</label>
+                     <input type="text" id="location" required placeholder="e.g., B-5, Grid C-2, Lvl 1">
+                     <span class="error-message" id="error-location"></span>
+                 </div>
+                 <div class="form-group">
+                     <label for="angle">Hammer Angle:</label>
+                     <select id="angle" required>
+                         <option value="" disabled selected>-- Select Angle --</option>
+                         <option value="0">0° (Horizontal)</option>
+                         <option value="+90">+90° (Upwards)</option>
+                         <option value="-90">-90° (Downwards)</option>
+                     </select>
+                     <span class="error-message" id="error-angle"></span>
+                 </div>
+                 <div class="form-group">
+                     <label for="minReading">Min Reading:</label>
+                     <input type="number" id="minReading" required min="10" max="100" step="1" placeholder="e.g., 28">
+                      <span class="error-message" id="error-minReading"></span>
+                 </div>
+                 <div class="form-group">
+                     <label for="maxReading">Max Reading:</label>
+                     <input type="number" id="maxReading" required min="10" max="100" step="1" placeholder="e.g., 35">
+                     <span class="error-message" id="error-maxReading"></span>
+                 </div>
+                 <div class="form-group">
+                     <label for="avgReading">Average Reading:</label>
+                     <input type="number" id="avgReading" required min="10" max="100" step="0.1" placeholder="e.g., 31.5">
+                     <span class="error-message" id="error-avgReading"></span>
+                 </div>
+            </div>
+            <div class="button-container">
+                 <button type="button" id="changeComponentBtn">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag-fill" viewBox="0 0 16 16"><path d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg>
+                     Add Component Row
+                 </button>
+                 <button type="submit" id="calculateBtn">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/></svg>
+                     Add Result Row
+                 </button>
+            </div>
+        </form>
+
+        <div id="results-heading">
+             <h2 class="section-title">Recorded Results</h2>
+             <button id="exportCsvBtn" disabled>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg>
+                  Export as CSV
+            </button>
+        </div>
+
+        {/* Table Container - Initially hidden via CSS if JS detects empty */}
+        <div class="table-container" id="tableContainer">
+            <table id="resultsTable">
+                 {/* Added Caption */}
+                 <caption>Hardness Values (Cols 4-13) are generated to match Min/Max/Avg inputs.</caption>
+                <thead>
+                    {/* Header rows remain the same */}
+                    <tr>
+                         <th rowspan="2" style="width: 5%;">S.No.</th>
+                         <th rowspan="2" style="width: 20%;">Member Location</th>
+                         <th rowspan="2" style="width: 8%;">Angle (°)</th>
+                         <th colspan="10" style="width: 40%;">Hardness Values</th>
+                         <th rowspan="2" style="width: 9%;">Input Avg.</th>
+                         <th rowspan="2" style="width: 9%;">Est. Strength (MPa)</th>
+                         <th rowspan="2" style="width: 9%;">Est. Strength (Psi)</th>
+                     </tr>
+                     <tr>
+                         <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                         <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+                     </tr>
+                </thead>
+                <tbody>
+                    {/* Rows added by JS */}
+                </tbody>
+            </table>
+        </div>
+
+        {/* Empty State Message - Initially shown if JS detects empty */}
+        <div id="emptyTableMsg">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-table" viewBox="0 0 16 16">
+               <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-4 0v-3H2v2a1 1 0 0 0 1 1zm-3-4h3v-3H2zm0-4h3V4H2zm4 0h4V4H6zm4 0h4V4h-4z"/>
+             </svg>
+             <p>No results recorded yet.<br>Fill in the form above and click 'Add Result Row' to start.</p>
+        </div>
+
+    </div> <!-- End Container -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const inputForm = document.getElementById('inputForm');
+            const resultsTableBody = document.querySelector('#resultsTable tbody');
+            const exportCsvBtn = document.getElementById('exportCsvBtn');
+            const changeComponentBtn = document.getElementById('changeComponentBtn');
+            const tableContainer = document.getElementById('tableContainer'); // For hiding/showing
+            const emptyTableMsg = document.getElementById('emptyTableMsg');   // Empty state message
+            // Input fields & error spans
+            const componentTypeInput = document.getElementById('componentType');
+            const errorComponentType = document.getElementById('error-componentType');
+            const locationInput = document.getElementById('location');
+            const errorLocation = document.getElementById('error-location');
+            const angleInput = document.getElementById('angle');
+            const errorAngle = document.getElementById('error-angle');
+            const minReadingInput = document.getElementById('minReading');
+            const errorMinReading = document.getElementById('error-minReading');
+            const maxReadingInput = document.getElementById('maxReading');
+            const errorMaxReading = document.getElementById('error-maxReading');
+            const avgReadingInput = document.getElementById('avgReading');
+            const errorAvgReading = document.getElementById('error-avgReading');
+            // Table Headers
+            const mainHeader = document.querySelector('#resultsTable thead tr:first-child');
+            const subHeader = document.querySelector('#resultsTable thead tr:last-child');
+            const TABLE_COLUMN_COUNT = 16; // Total columns including S.No etc.
+
+            // --- Correlation Data ---
+             const correlationData = { /* Data from previous step... */
+                 "0": [ { minRebound: 24, mpa: 14 }, { minRebound: 25, mpa: 16 }, { minRebound: 26, mpa: 18 },{ minRebound: 27, mpa: 19 }, { minRebound: 28, mpa: 20 }, { minRebound: 29, mpa: 22 },{ minRebound: 30, mpa: 23 }, { minRebound: 31, mpa: 24 }, { minRebound: 32, mpa: 26 },{ minRebound: 33, mpa: 28 }, { minRebound: 34, mpa: 30 }, { minRebound: 35, mpa: 31 },{ minRebound: 36, mpa: 32 }, { minRebound: 37, mpa: 34 }, { minRebound: 38, mpa: 36 },{ minRebound: 39, mpa: 38 }, { minRebound: 40, mpa: 40 }, { minRebound: 41, mpa: 42 },{ minRebound: 42, mpa: 44 }, { minRebound: 43, mpa: 46 }, { minRebound: 44, mpa: 48 },{ minRebound: 45, mpa: 50 }, { minRebound: 46, mpa: 52 }, { minRebound: 47, mpa: 54 },{ minRebound: 48, mpa: 56 }, { minRebound: 49, mpa: 58 }, { minRebound: 50, mpa: 60 },{ minRebound: 51, mpa: 62 }, { minRebound: 52, mpa: 64 } ],
+                 "+90": [ { minRebound: 25, mpa: 10 }, { minRebound: 26, mpa: 11 }, { minRebound: 27, mpa: 12 },{ minRebound: 28, mpa: 14 }, { minRebound: 29, mpa: 15 }, { minRebound: 30, mpa: 16 },{ minRebound: 31, mpa: 18 }, { minRebound: 32, mpa: 20 }, { minRebound: 33, mpa: 21 },{ minRebound: 34, mpa: 22 }, { minRebound: 35, mpa: 24 }, { minRebound: 36, mpa: 26 },{ minRebound: 37, mpa: 28 }, { minRebound: 38, mpa: 30 }, { minRebound: 39, mpa: 31 },{ minRebound: 40, mpa: 33 }, { minRebound: 41, mpa: 35 }, { minRebound: 42, mpa: 36 },{ minRebound: 43, mpa: 38 }, { minRebound: 44, mpa: 40 }, { minRebound: 45, mpa: 42 },{ minRebound: 46, mpa: 45 }, { minRebound: 47, mpa: 47 }, { minRebound: 48, mpa: 49 },{ minRebound: 49, mpa: 51 }, { minRebound: 50, mpa: 54 }, { minRebound: 51, mpa: 56 },{ minRebound: 52, mpa: 58 }, { minRebound: 53, mpa: 60 }, { minRebound: 54, mpa: 62 },{ minRebound: 55, mpa: 64 }, { minRebound: 56, mpa: 66 }, { minRebound: 57, mpa: 68 },{ minRebound: 58, mpa: 70 }, { minRebound: 59, mpa: 70 }, { minRebound: 60, mpa: 70 } ],
+                 "-90": [ { minRebound: 25, mpa: 21 }, { minRebound: 26, mpa: 22 }, { minRebound: 27, mpa: 24 },{ minRebound: 28, mpa: 26 }, { minRebound: 29, mpa: 27 }, { minRebound: 30, mpa: 28 },{ minRebound: 31, mpa: 30 }, { minRebound: 32, mpa: 32 }, { minRebound: 33, mpa: 33 },{ minRebound: 34, mpa: 34 }, { minRebound: 35, mpa: 36 }, { minRebound: 36, mpa: 38 },{ minRebound: 37, mpa: 40 }, { minRebound: 38, mpa: 42 }, { minRebound: 39, mpa: 43 },{ minRebound: 40, mpa: 44 }, { minRebound: 41, mpa: 46 }, { minRebound: 42, mpa: 48 },{ minRebound: 43, mpa: 50 }, { minRebound: 44, mpa: 52 }, { minRebound: 45, mpa: 54 },{ minRebound: 46, mpa: 56 }, { minRebound: 47, mpa: 58 }, { minRebound: 48, mpa: 60 },{ minRebound: 49, mpa: 62 }, { minRebound: 50, mpa: 64 }, { minRebound: 51, mpa: 66 },{ minRebound: 52, mpa: 68 }, { minRebound: 53, mpa: 70 }, { minRebound: 54, mpa: 70 },{ minRebound: 55, mpa: 70 }, { minRebound: 56, mpa: 70 }, { minRebound: 57, mpa: 70 },{ minRebound: 58, mpa: 70 }, { minRebound: 59, mpa: 70 }, { minRebound: 60, mpa: 70 } ]
+             };
+
+            // --- Constants & State ---
+            const PSI_CONVERSION_FACTOR = 145.0377;
+            let serialCounter = 0; // Tracks only data rows
+            const LOCAL_STORAGE_KEY = 'schmidtHammerResults';
+
+            // --- Event Listeners ---
+            inputForm.addEventListener('submit', handleSubmit);
+            changeComponentBtn.addEventListener('click', handleChangeComponent);
+            exportCsvBtn.addEventListener('click', exportTableToCSV);
+            window.addEventListener('resize', setSubHeaderTop);
+            window.addEventListener('load', () => {
+                loadTableFromLocalStorage(); // Load saved data on page load
+                setSubHeaderTop();
+                updateTableVisibility();
+            });
+            // Add listeners for inline validation (on input change/blur)
+             [componentTypeInput, locationInput, angleInput, minReadingInput, maxReadingInput, avgReadingInput].forEach(input => {
+                 input.addEventListener('input', () => validateForm(false)); // Validate silently on input
+                 input.addEventListener('blur', () => validateForm(false)); // Validate silently on blur
+             });
+
+
+            // --- Functions ---
+            function setSubHeaderTop() { if (mainHeader && subHeader) { subHeader.style.top = `${mainHeader.offsetHeight}px`; } }
+
+            function validateField(inputEl, errorEl, condition, message) {
+                 if (condition) {
+                     inputEl.classList.add('input-error');
+                     errorEl.textContent = message;
+                     errorEl.style.display = 'block';
+                     return false; // Invalid
+                 } else {
+                     inputEl.classList.remove('input-error');
+                     errorEl.textContent = '';
+                     errorEl.style.display = 'none';
+                     return true; // Valid
+                 }
+            }
+
+             function validateForm(isSubmitting) {
+                 let isValid = true;
+                 // Get current values for checks
+                 const componentType = componentTypeInput.value.trim();
+                 const location = locationInput.value.trim();
+                 const angle = angleInput.value;
+                 const minReading = parseInt(minReadingInput.value); // Use parseInt/Float for checks
+                 const maxReading = parseInt(maxReadingInput.value);
+                 const avgReading = parseFloat(avgReadingInput.value);
+
+                 // Validate individual fields (show errors immediately if isSubmitting)
+                 isValid &= validateField(componentTypeInput, errorComponentType, !componentType && isSubmitting, "Component Type is required.");
+                 isValid &= validateField(locationInput, errorLocation, !location && isSubmitting, "Location is required.");
+                 isValid &= validateField(angleInput, errorAngle, !angle && isSubmitting, "Please select an angle.");
+                 isValid &= validateField(minReadingInput, errorMinReading, isNaN(minReading) && (minReadingInput.value !== '' || isSubmitting), "Min Reading must be a number.");
+                 isValid &= validateField(maxReadingInput, errorMaxReading, isNaN(maxReading) && (maxReadingInput.value !== '' || isSubmitting), "Max Reading must be a number.");
+                 isValid &= validateField(avgReadingInput, errorAvgReading, isNaN(avgReading) && (avgReadingInput.value !== '' || isSubmitting), "Average Reading must be a number.");
+
+                 // Cross-field validation only if individual fields are valid numbers
+                 if (!isNaN(minReading) && !isNaN(maxReading)) {
+                     isValid &= validateField(minReadingInput, errorMinReading, minReading > maxReading, "Min cannot be greater than Max.");
+                     // Need to also validate maxReadingInput if minReading causes the error
+                     validateField(maxReadingInput, errorMaxReading, minReading > maxReading, ""); // Show error state on max too
+                 } else if (isValid) { // Clear cross-field error if inputs become valid
+                     validateField(minReadingInput, errorMinReading, false, "");
+                     validateField(maxReadingInput, errorMaxReading, false, "");
+                 }
+
+                 if (!isNaN(avgReading) && !isNaN(minReading) && !isNaN(maxReading) && minReading <= maxReading) {
+                      isValid &= validateField(avgReadingInput, errorAvgReading, avgReading < minReading || avgReading > maxReading, `Avg must be between ${minReading} and ${maxReading}.`);
+
+                     // Math possibility check
+                     const minPossibleAvg = (minReading * 9 + maxReading) / 10.0;
+                     const maxPossibleAvg = (maxReading * 9 + minReading) / 10.0;
+                     const tolerance = 0.01;
+                     isValid &= validateField(avgReadingInput, errorAvgReading, avgReading < minPossibleAvg - tolerance, `Avg (${avgReading.toFixed(1)}) is too low for Min/Max. Min possible: ~${minPossibleAvg.toFixed(1)}`);
+                     isValid &= validateField(avgReadingInput, errorAvgReading, avgReading > maxPossibleAvg + tolerance, `Avg (${avgReading.toFixed(1)}) is too high for Min/Max. Max possible: ~${maxPossibleAvg.toFixed(1)}`);
+
+                 } else if (isValid) { // Clear cross-field error
+                      validateField(avgReadingInput, errorAvgReading, false, "");
+                 }
+
+
+                 return isValid;
+             }
+
+            function handleChangeComponent() {
+                // Validate only the component type field for this action
+                 const componentType = componentTypeInput.value.trim();
+                 if (!validateField(componentTypeInput, errorComponentType, !componentType, "Please enter a Component Type.")) {
+                     return; // Stop if invalid
+                 }
+                 clearErrors(true); // Clear only component error after success
+
+                const row = resultsTableBody.insertRow();
+                row.classList.add('component-row', 'new-row-highlight'); // Add highlight class
+
+                const cell = row.insertCell();
+                cell.setAttribute('colspan', TABLE_COLUMN_COUNT);
+                cell.textContent = componentType;
+
+                setTimeout(() => row.classList.remove('new-row-highlight'), 1500); // Remove highlight after delay
+
+                // Don't increment serial counter
+                updateTableAndStorage();
+                // componentTypeInput.value = ''; // Optional clear
+                locationInput.focus(); // Move focus to next logical field
+            }
+
+            function handleSubmit(event) {
+                event.preventDefault();
+                if (!validateForm(true)) { // Validate all fields and show errors on submit
+                    return;
+                }
+
+                const location = locationInput.value.trim();
+                const angle = angleInput.value;
+                const minReading = parseInt(minReadingInput.value);
+                const maxReading = parseInt(maxReadingInput.value);
+                const avgReading = parseFloat(avgReadingInput.value);
+
+                const generatedReadings = generateReadings(minReading, maxReading, avgReading);
+                if (!generatedReadings) return;
+
+                const estimatedMpa = lookupMpa(avgReading, angle);
+                const estimatedPsi = estimatedMpa !== null ? estimatedMpa * PSI_CONVERSION_FACTOR : null;
+
+                serialCounter++; // Increment *before* adding row
+                addResultRow(serialCounter, location, angle, generatedReadings, avgReading, estimatedMpa, estimatedPsi);
+                updateTableAndStorage();
+
+                // Optional: Clear specific fields for next entry, keep component type?
+                // locationInput.value = ''; angleInput.value = ''; minReadingInput.value = ''; maxReadingInput.value = ''; avgReadingInput.value = '';
+                // locationInput.focus();
+            }
+
+            function generateReadings(min, max, targetAvg) { /* ... (no changes needed) ... */
+                 const numReadings = 10; const targetSum = Math.round(targetAvg * numReadings); const readings = new Array(numReadings); const maxIterations = 15000; let iterations = 0; readings[0] = min; readings[1] = max; let currentSum = min + max; const adjustableIndices = []; const initialValue = Math.max(min, Math.min(max, Math.round(targetAvg))); for (let i = 2; i < numReadings; i++) { readings[i] = initialValue; currentSum += readings[i]; adjustableIndices.push(i); } while (Math.abs(currentSum - targetSum) > 0 && iterations < maxIterations) { const diff = targetSum - currentSum; const idxToAdjust = adjustableIndices[Math.floor(Math.random() * adjustableIndices.length)]; if (diff > 0 && readings[idxToAdjust] < max) { readings[idxToAdjust]++; currentSum++; } else if (diff < 0 && readings[idxToAdjust] > min) { readings[idxToAdjust]--; currentSum--; } iterations++; } if (Math.abs(currentSum - targetSum) > 0) { console.error("Failed to converge. Target:", targetSum, "Achieved:", currentSum); alert(`Failed to generate readings for average ${targetAvg.toFixed(1)} (Target Sum: ${targetSum}, Achieved: ${currentSum}). Check Min/Max constraints or adjust average slightly.`); return null; } shuffleArray(readings); return readings;
+             }
+            function lookupMpa(averageRebound, angle) { /* ... (no changes needed) ... */
+                 const table = correlationData[angle]; if (!table || table.length === 0) return null; let foundMpa = null; let minReboundInTable = table[0].minRebound; let maxReboundInTable = table[table.length-1].minRebound; if (averageRebound < minReboundInTable) { console.warn(`Avg rebound ${averageRebound.toFixed(1)} below range [${minReboundInTable}-${maxReboundInTable}]. Using lowest MPa: ${table[0].mpa}.`); return table[0].mpa; } if (averageRebound >= maxReboundInTable) { return table[table.length - 1].mpa; } for (let i = 0; i < table.length - 1; i++) { if (averageRebound >= table[i].minRebound && averageRebound < table[i + 1].minRebound) { foundMpa = table[i].mpa; break; } } if (foundMpa === null) { console.error("MPa lookup failed unexpectedly for avg:", averageRebound); for(let i = table.length - 1; i >= 0; i--) { if(averageRebound >= table[i].minRebound) { return table[i].mpa; } } } return foundMpa;
+             }
+
+            function addResultRow(serialNo, location, angle, readings, avgReading, mpa, psi) {
+                const row = resultsTableBody.insertRow();
+                row.classList.add('new-row-highlight'); // Add highlight class
+                setTimeout(() => row.classList.remove('new-row-highlight'), 1500);
+
+                row.insertCell().textContent = serialNo;
+                row.insertCell().textContent = location;
+                row.insertCell().textContent = angle;
+                // Add specific class to hardness value cells
+                readings.forEach(reading => {
+                    const cell = row.insertCell();
+                    cell.textContent = reading;
+                    cell.classList.add('hardness-value-cell'); // Class for styling
+                });
+                row.insertCell().textContent = avgReading.toFixed(1);
+                row.insertCell().textContent = mpa !== null ? mpa.toFixed(1) : 'N/A';
+                row.insertCell().textContent = psi !== null ? Math.round(psi).toLocaleString() : 'N/A';
+            }
+
+            function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
+
+             function clearErrors(onlyComponent = false) {
+                 const fieldsToClear = onlyComponent
+                     ? [[componentTypeInput, errorComponentType]]
+                     : [
+                         [componentTypeInput, errorComponentType], [locationInput, errorLocation],
+                         [angleInput, errorAngle], [minReadingInput, errorMinReading],
+                         [maxReadingInput, errorMaxReading], [avgReadingInput, errorAvgReading]
+                       ];
+                 fieldsToClear.forEach(([inputEl, errorEl]) => {
+                     inputEl.classList.remove('input-error');
+                     errorEl.textContent = '';
+                     errorEl.style.display = 'none';
+                 });
+             }
+
+             // --- localStorage Functions ---
+             function saveTableToLocalStorage() {
+                 localStorage.setItem(LOCAL_STORAGE_KEY, resultsTableBody.innerHTML);
+                 // Also save serial counter state
+                 localStorage.setItem(LOCAL_STORAGE_KEY + '_counter', serialCounter);
+             }
+
+             function loadTableFromLocalStorage() {
+                 const savedTableHTML = localStorage.getItem(LOCAL_STORAGE_KEY);
+                 const savedCounter = localStorage.getItem(LOCAL_STORAGE_KEY + '_counter');
+
+                 if (savedTableHTML) {
+                     resultsTableBody.innerHTML = savedTableHTML;
+                     serialCounter = savedCounter ? parseInt(savedCounter, 10) : 0;
+                 } else {
+                     serialCounter = 0; // Ensure counter is 0 if no saved data
+                 }
+                 updateTableVisibility(); // Update visibility based on loaded content
+                 updateExportButtonState();
+             }
+
+            function updateTableVisibility() {
+                 if (resultsTableBody.rows.length > 0) {
+                     tableContainer.style.display = 'block';
+                     emptyTableMsg.style.display = 'none';
+                 } else {
+                     tableContainer.style.display = 'none';
+                     emptyTableMsg.style.display = 'block';
+                 }
+            }
+
+            function updateTableAndStorage() {
+                setSubHeaderTop(); // Adjust sticky position
+                updateTableVisibility(); // Show/hide table/message
+                updateExportButtonState(); // Enable/disable export
+                saveTableToLocalStorage(); // Save the new state
+            }
+
+            function updateExportButtonState() { exportCsvBtn.disabled = resultsTableBody.rows.length === 0; }
+            function escapeCsvCell(cellData) { if (cellData === null || cellData === undefined) { return ''; } const stringData = String(cellData); if (stringData.includes(',') || stringData.includes('"') || stringData.includes('\n')) { const escapedData = stringData.replace(/"/g, '""'); return `"${escapedData}"`; } return stringData; }
+            function exportTableToCSV() { /* ... (no changes needed) ... */
+                if (resultsTableBody.rows.length === 0) { alert("No data to export."); return; } const csv = []; const headers = [ "S.No.", "Member Location", "Angle", "Reading 1", "Reading 2", "Reading 3", "Reading 4", "Reading 5", "Reading 6", "Reading 7", "Reading 8", "Reading 9", "Reading 10", "Input Average", "Est. Strength (MPa)", "Est. Strength (Psi)" ]; csv.push(headers.join(',')); for (const row of resultsTableBody.rows) { if (row.classList.contains('component-row')) { const componentName = row.cells[0].textContent; const componentCsvRow = [escapeCsvCell(`Component: ${componentName}`)]; for (let i = 1; i < headers.length; i++) { componentCsvRow.push(''); } csv.push(componentCsvRow.join(',')); } else { const rowData = []; for (const cell of row.cells) { rowData.push(escapeCsvCell(cell.textContent)); } csv.push(rowData.join(',')); } } const csvString = csv.join('\n'); const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); if (link.download !== undefined) { const url = URL.createObjectURL(blob); link.setAttribute("href", url); const timestamp = new Date().toISOString().slice(0, 10); link.setAttribute("download", `schmidt_hammer_results_${timestamp}.csv`); link.style.visibility = 'hidden'; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); } else { alert("CSV download is not supported in your browser."); }
+            }
+
+            // Initial setup happens in the 'load' event listener
+
+        }); // End DOMContentLoaded
+    </script>
+
+</body>
+</html>
